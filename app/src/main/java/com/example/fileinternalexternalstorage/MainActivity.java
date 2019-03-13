@@ -1,14 +1,19 @@
 package com.example.fileinternalexternalstorage;
 
+import android.content.Context;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +44,45 @@ public class MainActivity extends AppCompatActivity {
             externalRead.setEnabled(false);
             externalDelete.setEnabled(false);
         }
+
+        Button writeInternalButton = findViewById(R.id.writeInternalButtonMain);
+        Button readInternalButton = findViewById(R.id.readInternalButtonMain);
+        Button deleteInternalButton = findViewById(R.id.deleteInternalButtonMain);
+
+        writeInternalButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String data = writeView.getText().toString();
+
+                try {
+                    outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+                    outputStream.write(data.getBytes());
+                    outputStream.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        readInternalButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    InputStream instream = openFileInput(filename);
+                    ReadData(instream);
+
+                } catch (java.io.FileNotFoundException e) {
+                    // do something if the filename does not exits
+                }
+            }
+        });
+
+        deleteInternalButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteFile("temp.txt");
+            }
+        });
     }
 
 
@@ -69,6 +113,33 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    public void ReadData(InputStream instream)
+    {
+        try {
+            InputStreamReader inputreader = new InputStreamReader(instream);
+
+            BufferedReader buffreader = new BufferedReader(inputreader);
+
+            String line = new String();
+            String allLines = new String();
+
+            // read every line of the file into the line-variable, on line at the time
+
+            while ((line = buffreader.readLine()) != null) {
+                allLines += line;
+            }
+
+            readView.setText(allLines);
+
+            // close the file again
+            instream.close();
+
+        } catch (Exception e) {
+
+            // do something if the filename does not exits
+        }
     }
 
 }
